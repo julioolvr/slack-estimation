@@ -1,5 +1,6 @@
 const uuid = require("uuid/v4");
 const fetch = require("node-fetch");
+const { splitEvery } = require("ramda");
 
 function handleStart(req, res) {
   res.status(200).end();
@@ -90,17 +91,19 @@ function buildMessage(id, storyName) {
   });
 
   if (!vote.closed) {
-    content.push({
-      type: "actions",
-      elements: OPTIONS.map(option => ({
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: String(option)
-        },
-        action_id: uuid(), // TODO: Is it really needed?
-        value: `${option}.${id}`
-      }))
+    splitEvery(4, OPTIONS).map(optionsSlice => {
+      content.push({
+        type: "actions",
+        elements: optionsSlice.map(option => ({
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: String(option)
+          },
+          action_id: uuid(), // TODO: Is it really needed?
+          value: `${option}.${id}`
+        }))
+      });
     });
 
     content.push({
