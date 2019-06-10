@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const bodyParser = require("body-parser");
 
 module.exports = function validateSlackRequest(req, res, next) {
-  bodyParser.text({ type: "*/*" })(req, res, (req, res, next) => {
+  return bodyParser.text({ type: "*/*" })(req, res, () => {
     const timestamp = req.get("X-Slack-Request-Timestamp");
 
     if (new Date().getTime() - parseInt(timestamp, 10) * 1000 > 1000 * 60 * 5) {
