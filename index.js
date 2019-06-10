@@ -2,15 +2,13 @@ require("dotenv").config();
 
 const express = require("express");
 
-const validateSlackRequest = require("./slackValidationMiddleware");
+const verifySlackRequest = require("./verifySlackRequest");
 const handlers = require("./voteHandler");
 
 const app = express();
 const port = 3000; // TODO: Env var
 
-// TODO: Request validation
-app.use(validateSlackRequest);
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, verify: verifySlackRequest }));
 app.post("/start", handlers.handleStart);
 app.post("/vote", handlers.handleAction);
 
