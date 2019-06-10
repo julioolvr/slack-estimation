@@ -17,7 +17,7 @@ module.exports = function validateSlackRequest(req, res, next) {
     const signatureBaseString = ["v0", timestamp, req.body].join(":");
     const hmac = crypto.createHmac("sha256", secret);
     hmac.update(signatureBaseString);
-    const signature = hmac.digest("hex");
+    const signature = `v0=${hmac.digest("hex")}`;
 
     if (req.get("X-Slack-Signature") !== signature) {
       throw new Error("Invalid signature found");
