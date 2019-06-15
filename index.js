@@ -6,7 +6,7 @@ const verifySlackRequest = require("./verifySlackRequest");
 const handlers = require("./voteHandler");
 
 const app = express();
-const port = 3000; // TODO: Env var
+const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: false, verify: verifySlackRequest }));
 app.post("/start", handlers.handleStart);
