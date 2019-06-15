@@ -1,154 +1,154 @@
-const uuid = require("uuid/v4");
-const fetch = require("node-fetch");
-const { splitEvery } = require("ramda");
+const uuid = require('uuid/v4')
+const fetch = require('node-fetch')
+const { splitEvery } = require('ramda')
 
-function handleStart(req, res) {
-  acknowledge(res);
+function handleStart (req, res) {
+  acknowledge(res)
 
-  const story = req.body.text;
-  const responseUrl = req.body.response_url;
+  const story = req.body.text
+  const responseUrl = req.body.response_url
 
   respondTo(responseUrl, {
-    response_type: "in_channel",
+    response_type: 'in_channel',
     blocks: startVotesFor(story)
-  });
+  })
 }
 
-function acknowledge(res) {
-  res.status(200).end();
+function acknowledge (res) {
+  res.status(200).end()
 }
 
-function respondTo(responseUrl, body) {
+function respondTo (responseUrl, body) {
   return fetch(responseUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
-  });
+  })
 }
 
-function handleAction(req, res) {
-  acknowledge(res);
+function handleAction (req, res) {
+  acknowledge(res)
 
-  const payload = JSON.parse(req.body.payload);
-  const value = payload.actions[0].value;
-  const [, action, id] = value.match(/(.+?)\.(.+)/);
+  const payload = JSON.parse(req.body.payload)
+  const value = payload.actions[0].value
+  const [, action, id] = value.match(/(.+?)\.(.+)/)
 
   switch (action) {
-    case "close":
-      closeVote(id);
-      break;
+    case 'close':
+      closeVote(id)
+      break
     default:
-      countVote(id, action, payload);
+      countVote(id, action, payload)
   }
 
   respondTo(payload.response_url, {
     replace_original: true,
     blocks: buildMessage(id)
-  });
+  })
 }
 
 module.exports = {
   handleStart,
   handleAction
-};
-
-// TODO: Configurable options
-const OPTIONS = [0, 1, 2, 3, 5, 8, "∞", "?"];
-
-const runningVotes = {};
-
-function startVotesFor(storyName) {
-  const id = uuid();
-  runningVotes[id] = { storyName, votes: {} };
-  return buildMessage(id);
 }
 
-function countVote(id, option, payload) {
+// TODO: Configurable options
+const OPTIONS = [0, 1, 2, 3, 5, 8, '∞', '?']
+
+const runningVotes = {}
+
+function startVotesFor (storyName) {
+  const id = uuid()
+  runningVotes[id] = { storyName, votes: {} }
+  return buildMessage(id)
+}
+
+function countVote (id, option, payload) {
   // TODO: Handle non-existing vote properly
-  const votes = runningVotes[id].votes;
+  const votes = runningVotes[id].votes
 
   if (votes[payload.user.id] !== option) {
-    votes[payload.user.id] = option;
+    votes[payload.user.id] = option
   } else {
-    delete votes[payload.user.id];
+    delete votes[payload.user.id]
   }
 }
 
-function closeVote(id) {
+function closeVote (id) {
   // TODO: Handle non-existing vote properly
-  const vote = runningVotes[id];
-  vote.closed = true;
+  const vote = runningVotes[id]
+  vote.closed = true
 }
 
-function buildMessage(id, storyName) {
-  const content = [];
-  const vote = runningVotes[id];
+function buildMessage (id, storyName) {
+  const content = []
+  const vote = runningVotes[id]
 
   content.push({
-    type: "section",
+    type: 'section',
     text: {
-      type: "mrkdwn",
+      type: 'mrkdwn',
       text: vote.storyName
     }
-  });
+  })
 
   if (!vote.closed) {
     splitEvery(4, OPTIONS).map(optionsSlice => {
       content.push({
-        type: "actions",
+        type: 'actions',
         elements: optionsSlice.map(option => ({
-          type: "button",
+          type: 'button',
           text: {
-            type: "plain_text",
+            type: 'plain_text',
             text: String(option)
           },
           action_id: uuid(), // TODO: Is it really needed?
           value: `${option}.${id}`
         }))
-      });
-    });
+      })
+    })
 
     content.push({
-      type: "actions",
+      type: 'actions',
       elements: [
         {
-          type: "button",
+          type: 'button',
           text: {
-            type: "plain_text",
-            text: "Close vote"
+            type: 'plain_text',
+            text: 'Close vote'
           },
           action_id: uuid(),
           value: `close.${id}`
         }
       ]
-    });
+    })
 
-    const voters = Object.keys(vote.votes);
+    const voters = Object.keys(vote.votes)
 
     if (voters.length > 0) {
       content.push({
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
+          type: 'mrkdwn',
           text: `Already voted: ${voters
             .map(voterId => `<@${voterId}>`)
-            .join(", ")}`
+            .join(', ')}`
         }
-      });
+      })
     }
   } else {
-    const voters = Object.keys(vote.votes);
+    const voters = Object.keys(vote.votes)
 
     content.push({
-      type: "section",
+      type: 'section',
       text: {
-        type: "mrkdwn",
+        type: 'mrkdwn',
         text: `Voting is closed! ${voters.map(
           voterId => `<@${voterId}>: ${vote.votes[voterId]}`
         )}`
       }
-    });
+    })
   }
 
-  return content;
+  return content
 }
