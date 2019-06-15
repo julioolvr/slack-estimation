@@ -3,22 +3,32 @@ const fetch = require("node-fetch");
 const { splitEvery } = require("ramda");
 
 function handleStart(req, res) {
-  res.status(200).end();
+  acknowledge(res);
 
   const story = req.body.text;
   const responseUrl = req.body.response_url;
 
-  fetch(responseUrl, {
+  respondTo(responseUrl, {
+    response_type: "in_channel",
+    blocks: startVotesFor(story)
+  });
+}
+
+function acknowledge(res) {
+  res.status(200).end();
+}
+
+function respondTo(responseUrl, body) {
+  return fetch(responseUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      response_type: "in_channel",
-      blocks: startVotesFor(story)
-    })
+    body: JSON.stringify(body)
   });
 }
 
 function handleAction(req, res) {
+  acknowledge(res);
+
   const payload = JSON.parse(req.body.payload);
   const value = payload.actions[0].value;
   const [, action, id] = value.match(/(.+?)\.(.+)/);
@@ -31,17 +41,9 @@ function handleAction(req, res) {
       countVote(id, action, payload);
   }
 
-  res.status(200).end();
-
-  const responseUrl = payload.response_url;
-
-  fetch(responseUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      replace_original: true,
-      blocks: buildMessage(id)
-    })
+  respondTo(payload.response_url, {
+    replace_original: true,
+    blocks: buildMessage(id)
   });
 }
 
