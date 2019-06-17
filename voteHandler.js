@@ -1,6 +1,7 @@
 const uuid = require('uuid/v4')
-const fetch = require('node-fetch')
-const { splitEvery } = require('ramda')
+const { splitEvery, pipe, append, flip, concat } = require('ramda')
+
+const respondTo = require('./respondToSlack')
 
 function handleStart (req, res) {
   acknowledge(res)
@@ -11,18 +12,6 @@ function handleStart (req, res) {
   respondTo(responseUrl, {
     response_type: 'in_channel',
     blocks: startVotesFor(story)
-  })
-}
-
-function acknowledge (res) {
-  res.status(200).end()
-}
-
-function respondTo (responseUrl, body) {
-  return fetch(responseUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
   })
 }
 
@@ -52,6 +41,10 @@ module.exports = {
   handleAction
 }
 
+function acknowledge (res) {
+  res.status(200).end()
+}
+
 // TODO: Configurable options
 const OPTIONS = [0, 1, 2, 3, 5, 8, '∞', '?']
 
@@ -60,8 +53,54 @@ const runningVotes = {}
 function startVotesFor (storyName) {
   const id = uuid()
   runningVotes[id] = { storyName, votes: {} }
-  return buildMessage(id)
+
+  return pipe(
+    addTitle(storyName),
+    addVotes(id, OPTIONS),
+    addCloseVote(id)
+  )([])
 }
+
+const addTitle = title =>
+  append({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: title
+    }
+  })
+
+const addVotes = (voteId, options) =>
+  flip(concat)(
+    splitEvery(4, options).map(optionsSlice => ({
+      type: 'actions',
+      elements: optionsSlice.map(option => ({
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: String(option)
+        },
+        action_id: uuid(), // TODO: Is it really needed?
+        value: `${option}.${voteId}`
+      }))
+    }))
+  )
+
+const addCloseVote = voteId =>
+  append({
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Close vote'
+        },
+        action_id: uuid(),
+        value: `close.${voteId}`
+      }
+    ]
+  })
 
 function countVote (id, option, payload) {
   // TODO: Handle non-existing vote properly
