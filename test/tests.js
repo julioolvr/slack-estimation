@@ -6,6 +6,7 @@ chai.use(chaiHttp)
 const { expect } = chai
 
 const app = require('../index')
+const snapshots = require('./snapshots/index')
 
 before(() => {
   nock.disableNetConnect()
@@ -52,5 +53,24 @@ describe('Starting a vote', () => {
       })
 
     scope.done()
+  })
+
+  describe('snapshots', () => {
+    it('sends the right message to Slack for a new vote', async () => {
+      const scope = nock('http://fakeslack')
+        .post('/response', snapshots.newVote('STORY'))
+        .reply(200)
+
+      await chai
+        .request(app)
+        .post('/start')
+        .type('form')
+        .send({
+          response_url: `http://fakeslack/response`,
+          text: 'STORY  '
+        })
+
+      scope.done()
+    })
   })
 })
