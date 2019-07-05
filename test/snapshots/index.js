@@ -1,3 +1,4 @@
 module.exports = {
-  newVote: require('./newVote')
+  newVote: require('./newVote'),
+  castVote: require('./castVote')
 }

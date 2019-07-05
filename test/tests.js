@@ -67,10 +67,59 @@ describe('Starting a vote', () => {
         .type('form')
         .send({
           response_url: `http://fakeslack/response`,
-          text: 'STORY  '
+          text: 'STORY'
         })
 
       scope.done()
+    })
+
+    describe('with an existing vote', () => {
+      let voteId
+
+      beforeEach(async () => {
+        const scope = nock('http://fakeslack')
+          .post('/response', response => {
+            // Take the voteId from one of the actions
+            voteId = response.blocks
+              .find(block => block.type === 'actions')
+              .elements[0].value.split('.')[1]
+
+            return true
+          })
+          .once()
+          .reply(200)
+
+        await chai
+          .request(app)
+          .post('/start')
+          .type('form')
+          .send({
+            response_url: `http://fakeslack/response`,
+            text: 'STORY'
+          })
+
+        scope.done()
+      })
+
+      it('sends the right message to Slack for voting', async () => {
+        const scope = nock('http://fakeslack')
+          .post('/response', snapshots.castVote('STORY', 'U123'))
+          .reply(200)
+
+        await chai
+          .request(app)
+          .post('/vote')
+          .type('form')
+          .send({
+            payload: JSON.stringify({
+              actions: [{ value: `0.${voteId}` }],
+              user: { id: 'U123' },
+              response_url: `http://fakeslack/response`
+            })
+          })
+
+        scope.done()
+      })
     })
   })
 })
