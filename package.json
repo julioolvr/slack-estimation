@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --exit",
+    "test": "mocha 'test/*.js' '**/*.test.js'",
+    "test:unit": "mocha '**/*.test.js'",
+    "test:integration": "mocha 'test/*.js'",
     "lint": "eslint ."
   },
   "husky": {
