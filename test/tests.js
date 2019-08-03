@@ -49,7 +49,7 @@ describe('Starting a vote', () => {
       .type('form')
       .send({
         response_url: `http://fakeslack/response`,
-        text: 'STORY  '
+        text: 'STORY'
       })
 
     scope.done()

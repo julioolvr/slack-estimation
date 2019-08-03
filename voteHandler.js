@@ -13,15 +13,20 @@ const {
 
 const respondTo = require('./respondToSlack')
 
+/*
+  ACTION HANDLERS
+*/
 function handleStart (req, res) {
   acknowledge(res)
 
-  const story = req.body.text
+  const storyName = req.body.text
   const responseUrl = req.body.response_url
+
+  const story = createStory(storyName)
 
   respondTo(responseUrl, {
     response_type: 'in_channel',
-    blocks: startVotesFor(story)
+    blocks: start(story)
   })
 }
 
@@ -42,7 +47,7 @@ function handleAction (req, res) {
 
   respondTo(payload.response_url, {
     replace_original: true,
-    blocks: buildMessage(id)
+    blocks: vote(id)
   })
 }
 
@@ -51,27 +56,43 @@ module.exports = {
   handleAction
 }
 
-function acknowledge (res) {
-  res.status(200).end()
-}
-
 // TODO: Configurable options
 const OPTIONS = ['0', '1', '2', '3', '5', '8', '∞', '?']
 
-const runningVotes = {}
+/*
+  DATA MANAGEMENT
+*/
+const stories = {}
 
-function startVotesFor (storyName) {
+function createStory (storyName) {
   const id = uuid()
-  runningVotes[id] = { storyName, votes: {} }
+  stories[id] = { id, storyName, votes: {} }
+  return stories[id]
+}
 
+function getStory (id) {
+  return stories[id]
+}
+
+/*
+  RESPONSE BUILDERS
+*/
+function start (story) {
   return pipe(
-    addTitle(storyName),
-    addVotes(id, OPTIONS),
-    addCloseVote(id)
+    addTitle(story.storyName),
+    addVotes(story.id, OPTIONS),
+    addCloseVote(story.id)
   )([])
 }
 
-function voteInProgressFor (id, vote) {
+function vote (id) {
+  const currentStory = stories[id]
+  return currentStory.closed
+    ? closedVote(id, currentStory)
+    : voteInProgress(id, currentStory)
+}
+
+function voteInProgress (id, vote) {
   return pipe(
     addTitle(vote.storyName),
     addVotes(id, OPTIONS),
@@ -80,13 +101,16 @@ function voteInProgressFor (id, vote) {
   )([])
 }
 
-function closedVoteFor (id, vote) {
+function closedVote (id, vote) {
   return pipe(
     addClosedTitle(vote.storyName),
     addResults(vote.votes, OPTIONS)
   )([])
 }
 
+/*
+  COMPONENTS
+*/
 const addTitle = title =>
   append({
     type: 'section',
@@ -188,9 +212,12 @@ const addResults = (votes, options) =>
     })
   )
 
+/*
+  ACTIONS
+*/
 function countVote (id, option, payload) {
-  // TODO: Handle non-existing vote properly
-  const votes = runningVotes[id].votes
+  // TODO: Handle non-existing story properly
+  const votes = getStory(id).votes
 
   if (votes[payload.user.id] !== option) {
     votes[payload.user.id] = option
@@ -200,12 +227,11 @@ function countVote (id, option, payload) {
 }
 
 function closeVote (id) {
-  // TODO: Handle non-existing vote properly
-  const vote = runningVotes[id]
+  // TODO: Handle non-existing story properly
+  const vote = getStory(id)
   vote.closed = true
 }
 
-function buildMessage (id) {
-  const vote = runningVotes[id]
-  return vote.closed ? closedVoteFor(id, vote) : voteInProgressFor(id, vote)
+function acknowledge (res) {
+  res.status(200).end()
 }
