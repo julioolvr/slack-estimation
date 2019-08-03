@@ -2,8 +2,8 @@ require('dotenv').config()
 
 const express = require('express')
 
-const verifySlackRequest = require('./verifySlackRequest')
-const handlers = require('./voteHandler')
+const { verifySlackRequest } = require('./lib/slack')
+const handlers = require('./lib/handlers')
 
 const app = express()
 const port = process.env.PORT || 3000
