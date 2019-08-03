@@ -11,6 +11,7 @@ const {
   ifElse
 } = require('ramda')
 
+const { createStory, getStory } = require('./lib/store')
 const respondTo = require('./respondToSlack')
 
 /*
@@ -60,21 +61,6 @@ module.exports = {
 const OPTIONS = ['0', '1', '2', '3', '5', '8', '∞', '?']
 
 /*
-  DATA MANAGEMENT
-*/
-const stories = {}
-
-function createStory (storyName) {
-  const id = uuid()
-  stories[id] = { id, storyName, votes: {} }
-  return stories[id]
-}
-
-function getStory (id) {
-  return stories[id]
-}
-
-/*
   RESPONSE BUILDERS
 */
 function start (story) {
@@ -86,7 +72,7 @@ function start (story) {
 }
 
 function vote (id) {
-  const currentStory = stories[id]
+  const currentStory = getStory(id)
   return currentStory.closed
     ? closedVote(id, currentStory)
     : voteInProgress(id, currentStory)
