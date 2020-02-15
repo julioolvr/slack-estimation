@@ -1,7 +1,9 @@
-const uuid = require("uuid/v4");
-const { splitEvery, compose, not, isEmpty } = require("ramda");
+import { v4 as uuid } from "uuid";
+import { splitEvery, compose, not, isEmpty } from "ramda";
 
-const title = title => [
+import { Votes } from "./story";
+
+export const title = (title: string) => [
   {
     type: "section",
     text: {
@@ -11,7 +13,7 @@ const title = title => [
   }
 ];
 
-const closedTitle = title => [
+export const closedTitle = (title: string) => [
   {
     type: "section",
     text: {
@@ -21,7 +23,7 @@ const closedTitle = title => [
   }
 ];
 
-const votes = (voteId, options) =>
+export const votes = (voteId: string, options: Array<string>) =>
   splitEvery(4, options).map(optionsSlice => ({
     type: "actions",
     elements: optionsSlice.map(option => ({
@@ -35,7 +37,7 @@ const votes = (voteId, options) =>
     }))
   }));
 
-const closeVote = voteId => [
+export const closeVote = (voteId: string) => [
   {
     type: "actions",
     elements: [
@@ -52,7 +54,7 @@ const closeVote = voteId => [
   }
 ];
 
-const voters = votes =>
+export const voters = (votes: Votes) =>
   compose(not, isEmpty)(votes)
     ? [
         {
@@ -67,7 +69,7 @@ const voters = votes =>
       ]
     : [];
 
-const results = (votes, options) =>
+export const results = (votes: Votes, options: Array<string>) =>
   not(isEmpty(votes))
     ? [
         {
@@ -96,18 +98,11 @@ const results = (votes, options) =>
         }
       ];
 
-module.exports = {
-  title,
-  votes,
-  closeVote,
-  voters,
-  closedTitle,
-  results
-};
+const hasVotes = (votes: Votes) => (option: string) =>
+  votesCountFor(votes, option) > 0;
 
-const hasVotes = votes => option => votesCountFor(votes, option) > 0;
+const votesCountFor = (votes: Votes, option: string) =>
+  votersFor(votes, option).length;
 
-const votesCountFor = (votes, option) => votersFor(votes, option).length;
-
-const votersFor = (votes, option) =>
+const votersFor = (votes: Votes, option: string) =>
   Object.keys(votes).filter(voterId => votes[voterId] === option);

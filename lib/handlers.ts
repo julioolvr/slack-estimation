@@ -1,9 +1,11 @@
-const { respond, acknowledge } = require("./slack");
-const { getStory, createStory, updateStory } = require("./store");
-const { closeVote, countVote } = require("./actions");
-const { start, vote } = require("./responses");
+import { Request, Response } from "express";
 
-function handleStart(req, res) {
+import { respond, acknowledge } from "./slack";
+import { getStory, createStory, updateStory } from "./store";
+import { closeVote, countVote } from "./actions";
+import { start, vote } from "./responses";
+
+export function handleStart(req: Request, res: Response) {
   acknowledge(res);
 
   const storyName = req.body.text;
@@ -17,7 +19,7 @@ function handleStart(req, res) {
   });
 }
 
-function handleAction(req, res) {
+export function handleAction(req: Request, res: Response) {
   acknowledge(res);
 
   const payload = JSON.parse(req.body.payload);
@@ -41,8 +43,3 @@ function handleAction(req, res) {
     blocks: vote(updatedStory)
   });
 }
-
-module.exports = {
-  handleStart,
-  handleAction
-};

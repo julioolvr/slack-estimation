@@ -1,14 +1,15 @@
 require("dotenv").config();
 
-const express = require("express");
+import * as express from "express";
+import { OptionsUrlencoded } from "body-parser";
 
-const { verifySlackRequest } = require("./lib/slack");
-const handlers = require("./lib/handlers");
+import * as handlers from "./lib/handlers";
+import { verifySlackRequest } from "./lib/slack";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const urlEncodedOptions = { extended: false };
+const urlEncodedOptions: OptionsUrlencoded = { extended: false };
 
 // TODO: Double check that the following is true when running on Glitch
 if (process.env.NODE_ENV === "production") {

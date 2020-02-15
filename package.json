@@ -4,11 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha 'test/*.js' '**/*.test.js'",
-    "test:unit": "mocha '**/*.test.js'",
-    "test:integration": "mocha 'test/*.js'",
-    "lint": "eslint ."
+    "start": "run-s build run",
+    "run": "node index.js",
+    "build": "tsc",
+    "test": "run-s build test:run",
+    "test:unit": "run-s build test:run-unit",
+    "test:integration": "run-s build test:run-integration",
+    "test:run": "run-p test:run-unit test:run-integration",
+    "test:run-unit": "mocha 'lib/**/*.test.js'",
+    "test:run-integration": "mocha 'test/*.js'",
+    "lint": "eslint .",
+    "dev": "run-p dev:*",
+    "dev:build": "npm run build -- --watch",
+    "dev:run": "nodemon index.js"
   },
   "husky": {
     "hooks": {
@@ -18,11 +26,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.2",
+    "@types/ramda": "^0.26.41",
+    "@types/uuid": "^3.4.7",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
+    "npm-run-all": "^4.1.5",
     "ramda": "^0.26.1",
+    "typescript": "^3.7.5",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -34,6 +47,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "husky": "^2.4.1",
     "mocha": "^6.1.4",
-    "nock": "^10.0.6"
+    "nock": "^10.0.6",
+    "nodemon": "^2.0.2"
   }
 }

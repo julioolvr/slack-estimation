@@ -1,18 +1,20 @@
-const { unnest } = require("ramda");
+import { unnest } from "ramda";
 
-const {
+import {
   title,
   votes,
   closeVote,
   voters,
   closedTitle,
   results
-} = require("./blocks");
+} from "./blocks";
+
+import { Story } from "./story";
 
 // TODO: Configurable options
 const OPTIONS = ["0", "1", "2", "3", "5", "8", "∞", "?"];
 
-function start(story) {
+export function start(story: Story) {
   return unnest([
     title(story.storyName),
     votes(story.id, OPTIONS),
@@ -20,13 +22,11 @@ function start(story) {
   ]);
 }
 
-function vote(story) {
+export function vote(story: Story) {
   return story.closed ? closedVote(story) : voteInProgress(story);
 }
 
-module.exports = { start, vote };
-
-function voteInProgress(story) {
+function voteInProgress(story: Story) {
   return unnest([
     title(story.storyName),
     votes(story.id, OPTIONS),
@@ -35,6 +35,6 @@ function voteInProgress(story) {
   ]);
 }
 
-function closedVote(story) {
+function closedVote(story: Story) {
   return unnest([closedTitle(story.storyName), results(story.votes, OPTIONS)]);
 }

@@ -1,7 +1,16 @@
-const crypto = require("crypto");
-const axios = require("axios");
+import { Request, Response } from "express";
+import * as crypto from "crypto";
+import axios from "axios";
 
-function respond(responseUrl, body) {
+export type Payload = {
+  user: {
+    id: string;
+  };
+};
+
+type SlackBody = any;
+
+export function respond(responseUrl: string, body: SlackBody) {
   return axios.post(responseUrl, body).catch(err => {
     // TODO: What's the proper way to log on node apps?
     // eslint-disable-next-line no-console
@@ -9,14 +18,17 @@ function respond(responseUrl, body) {
   });
 }
 
-function acknowledge(res) {
+export function acknowledge(res: Response) {
   res.status(200).end();
 }
 
-function verifySlackRequest(req, res, buf) {
+export function verifySlackRequest(req: Request, res: Response, buf: Buffer) {
   const timestamp = req.get("X-Slack-Request-Timestamp");
 
-  if (new Date().getTime() - parseInt(timestamp, 10) * 1000 > 1000 * 60 * 5) {
+  if (
+    !timestamp ||
+    new Date().getTime() - parseInt(timestamp, 10) * 1000 > 1000 * 60 * 5
+  ) {
     throw new Error("Request timestamp is from more than 5 minutes ago");
   }
 
@@ -34,5 +46,3 @@ function verifySlackRequest(req, res, buf) {
     throw new Error("Invalid signature found");
   }
 }
-
-module.exports = { respond, acknowledge, verifySlackRequest };
