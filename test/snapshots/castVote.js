@@ -1,90 +1,91 @@
-const { is } = require('ramda')
-const { matchObject, startsWith } = require('./utils')
+const { is } = require("ramda");
+const { matchObject, startsWith } = require("./utils");
 
 const snapshot = (storyName, userId) => ({
   replace_original: true,
   blocks: [
     {
-      type: 'section',
+      type: "section",
       text: {
-        type: 'mrkdwn',
+        type: "mrkdwn",
         text: text => text.trim() === `*Voting* :point_right: ${storyName}`
       }
     },
     {
-      type: 'actions',
+      type: "actions",
       elements: [
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '0' },
+          type: "button",
+          text: { type: "plain_text", text: "0" },
           action_id: is(String),
-          value: startsWith('0.')
+          value: startsWith("0.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '1' },
+          type: "button",
+          text: { type: "plain_text", text: "1" },
           action_id: is(String),
-          value: startsWith('1.')
+          value: startsWith("1.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '2' },
+          type: "button",
+          text: { type: "plain_text", text: "2" },
           action_id: is(String),
-          value: startsWith('2.')
+          value: startsWith("2.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '3' },
+          type: "button",
+          text: { type: "plain_text", text: "3" },
           action_id: is(String),
-          value: startsWith('3.')
+          value: startsWith("3.")
         }
       ]
     },
     {
-      type: 'actions',
+      type: "actions",
       elements: [
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '5' },
+          type: "button",
+          text: { type: "plain_text", text: "5" },
           action_id: is(String),
-          value: startsWith('5.')
+          value: startsWith("5.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '8' },
+          type: "button",
+          text: { type: "plain_text", text: "8" },
           action_id: is(String),
-          value: startsWith('8.')
+          value: startsWith("8.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '∞' },
+          type: "button",
+          text: { type: "plain_text", text: "∞" },
           action_id: is(String),
-          value: startsWith('∞.')
+          value: startsWith("∞.")
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '?' },
+          type: "button",
+          text: { type: "plain_text", text: "?" },
           action_id: is(String),
-          value: startsWith('?.')
+          value: startsWith("?.")
         }
       ]
     },
     {
-      type: 'section',
-      text: { type: 'mrkdwn', text: `Already voted: <@${userId}>` }
+      type: "section",
+      text: { type: "mrkdwn", text: `Already voted: <@${userId}>` }
     },
     {
-      type: 'actions',
+      type: "actions",
       elements: [
         {
-          type: 'button',
-          text: { type: 'plain_text', text: 'Close vote' },
+          type: "button",
+          text: { type: "plain_text", text: "Close vote" },
           action_id: is(String),
-          value: startsWith('close.')
+          value: startsWith("close.")
         }
       ]
     }
   ]
-})
+});
 
-module.exports = (storyName, userId) => matchObject(snapshot(storyName, userId))
+module.exports = (storyName, userId) =>
+  matchObject(snapshot(storyName, userId));

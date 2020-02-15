@@ -6,29 +6,29 @@ const {
   identity,
   curry,
   invoker
-} = require('ramda')
+} = require("ramda");
 
-function matchElements (a, b) {
+function matchElements(a, b) {
   if (is(Function, a)) {
-    return a(b)
+    return a(b);
   }
 
   if (is(Array, a)) {
-    return matchArray(a, b)
+    return matchArray(a, b);
   }
 
   if (is(Object, a)) {
-    return matchObject(a, b)
+    return matchObject(a, b);
   }
 
-  return a === b
+  return a === b;
 }
 
-function matchArray (base, test) {
-  return is(Array, test) && base.every((x, i) => matchElements(x, test[i]))
+function matchArray(base, test) {
+  return is(Array, test) && base.every((x, i) => matchElements(x, test[i]));
 }
 
-function matchObject (base, test) {
+function matchObject(base, test) {
   return (
     is(Object, test) &&
     pipe(
@@ -39,12 +39,12 @@ function matchObject (base, test) {
         true
       )
     )(base)
-  )
+  );
 }
 
-const startsWith = invoker(1, 'startsWith')
+const startsWith = invoker(1, "startsWith");
 
 module.exports = {
   matchObject: curry(matchObject),
   startsWith
-}
+};
