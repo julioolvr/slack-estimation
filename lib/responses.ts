@@ -10,9 +10,9 @@ import {
 } from "./blocks";
 
 import { Story } from "./story";
+import config from "./config";
 
-// TODO: Configurable options
-const OPTIONS = ["0", "1", "2", "3", "5", "8", "∞", "?"];
+const OPTIONS = config.options;
 
 export function start(story: Story) {
   return unnest([
