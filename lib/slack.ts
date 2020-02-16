@@ -2,13 +2,19 @@ import { Request, Response } from "express";
 import * as crypto from "crypto";
 import axios from "axios";
 
+import { BlockUi } from "./blocks";
+
 export type Payload = {
   user: {
     id: string;
   };
 };
 
-type SlackBody = any;
+type SlackBody = {
+  blocks: BlockUi;
+  response_type?: "in_channel";
+  replace_original?: boolean;
+};
 
 export function respond(responseUrl: string, body: SlackBody) {
   return axios.post(responseUrl, body).catch(err => {

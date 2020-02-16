@@ -3,7 +3,57 @@ import { splitEvery, compose, not, isEmpty } from "ramda";
 
 import { Votes } from "./story";
 
-export const title = (title: string) => [
+export type BlockUi = Array<Block>;
+
+type Block = SectionBlock | ActionsBlock;
+
+type SectionBlock = TextSectionBlock | FieldsSectionBlock;
+
+type TextObject = PlainTextObject | MarkdownObject;
+
+type PlainTextObject = {
+  type: "plain_text";
+  text: string;
+  emoji?: boolean;
+};
+
+type MarkdownObject = {
+  type: "mrkdwn";
+  text: string;
+  verbatim?: boolean;
+};
+
+type TextSectionBlock = {
+  type: "section";
+  text: TextObject;
+  block_id?: string;
+  fields?: Array<string>;
+};
+
+type FieldsSectionBlock = {
+  type: "section";
+  block_id?: string;
+  fields: Array<TextObject>;
+};
+
+type ActionsBlock = {
+  type: "actions";
+  elements: Array<BlockElements>;
+  block_id?: string;
+};
+
+type BlockElements = ButtonBlockElement;
+
+type ButtonBlockElement = {
+  type: "button";
+  text: PlainTextObject;
+  action_id: string;
+  url?: string;
+  value?: string;
+  style?: "primary" | "danger";
+};
+
+export const title = (title: string): Array<SectionBlock> => [
   {
     type: "section",
     text: {
@@ -13,7 +63,7 @@ export const title = (title: string) => [
   }
 ];
 
-export const closedTitle = (title: string) => [
+export const closedTitle = (title: string): Array<SectionBlock> => [
   {
     type: "section",
     text: {
@@ -23,7 +73,10 @@ export const closedTitle = (title: string) => [
   }
 ];
 
-export const votes = (voteId: string, options: Array<string>) =>
+export const votes = (
+  voteId: string,
+  options: Array<string>
+): Array<ActionsBlock> =>
   splitEvery(4, options).map(optionsSlice => ({
     type: "actions",
     elements: optionsSlice.map(option => ({
@@ -37,7 +90,7 @@ export const votes = (voteId: string, options: Array<string>) =>
     }))
   }));
 
-export const closeVote = (voteId: string) => [
+export const closeVote = (voteId: string): Array<ActionsBlock> => [
   {
     type: "actions",
     elements: [
@@ -54,7 +107,7 @@ export const closeVote = (voteId: string) => [
   }
 ];
 
-export const voters = (votes: Votes) =>
+export const voters = (votes: Votes): Array<SectionBlock> =>
   compose(not, isEmpty)(votes)
     ? [
         {
@@ -69,7 +122,10 @@ export const voters = (votes: Votes) =>
       ]
     : [];
 
-export const results = (votes: Votes, options: Array<string>) =>
+export const results = (
+  votes: Votes,
+  options: Array<string>
+): Array<SectionBlock> =>
   not(isEmpty(votes))
     ? [
         {

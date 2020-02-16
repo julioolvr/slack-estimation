@@ -6,7 +6,8 @@ import {
   closeVote,
   voters,
   closedTitle,
-  results
+  results,
+  BlockUi
 } from "./blocks";
 
 import { Story } from "./story";
@@ -14,7 +15,7 @@ import config from "./config";
 
 const OPTIONS = config.options;
 
-export function start(story: Story) {
+export function start(story: Story): BlockUi {
   return unnest([
     title(story.storyName),
     votes(story.id, OPTIONS),
@@ -22,11 +23,11 @@ export function start(story: Story) {
   ]);
 }
 
-export function vote(story: Story) {
+export function vote(story: Story): BlockUi {
   return story.closed ? closedVote(story) : voteInProgress(story);
 }
 
-function voteInProgress(story: Story) {
+function voteInProgress(story: Story): BlockUi {
   return unnest([
     title(story.storyName),
     votes(story.id, OPTIONS),
@@ -35,6 +36,6 @@ function voteInProgress(story: Story) {
   ]);
 }
 
-function closedVote(story: Story) {
+function closedVote(story: Story): BlockUi {
   return unnest([closedTitle(story.storyName), results(story.votes, OPTIONS)]);
 }
