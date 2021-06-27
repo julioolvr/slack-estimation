@@ -1,4 +1,4 @@
-# Slack Estimation
+# Slack Estimation Change Test
 
 Slack bot to estimate work with a team. Easily deployable on [Glitch](https://glitch.com)!
 
