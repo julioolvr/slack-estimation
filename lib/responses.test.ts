@@ -1,13 +1,16 @@
-const { expect } = require("chai");
+import { expect } from "chai";
 
-const { start, vote } = require("./responses");
+import { Story } from "./story";
+import { storyFactory } from "./test/factories";
+
+import { start, vote } from "./responses";
 
 describe("responses", () => {
   describe("start", () => {
     rendersABlankVoteTests(start, {
       storyName: "STORY",
       votes: {},
-      id: "STORY_ID"
+      id: "STORY_ID",
     });
   });
 
@@ -17,24 +20,26 @@ describe("responses", () => {
         rendersABlankVoteTests(vote, {
           storyName: "STORY",
           votes: {},
-          id: "STORY_ID"
+          id: "STORY_ID",
         });
       });
 
       describe("with voters", () => {
         it("renders the voters", () => {
-          const response = vote({
-            storyName: "STORY",
-            votes: { U123: "2", U456: "3" },
-            id: "STORY_ID"
-          });
+          const response = vote(
+            storyFactory.build({
+              storyName: "STORY",
+              votes: { U123: "2", U456: "3" },
+              id: "STORY_ID",
+            })
+          );
 
           expect(response[3]).to.deep.equal({
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "Already voted: <@U123>, <@U456>"
-            }
+              text: "Already voted: <@U123>, <@U456>",
+            },
           });
         });
       });
@@ -46,15 +51,15 @@ describe("responses", () => {
           storyName: "STORY",
           id: "STORY_ID",
           votes: {},
-          closed: true
+          closed: true,
         });
 
         expect(response).to.deep.include({
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*Voting closed* :checkered_flag: STORY"
-          }
+            text: "*Voting closed* :checkered_flag: STORY",
+          },
         });
       });
 
@@ -64,15 +69,15 @@ describe("responses", () => {
             storyName: "STORY",
             votes: { U123: "2", U456: "3" },
             id: "STORY_ID",
-            closed: true
+            closed: true,
           });
 
           expect(response).to.deep.include({
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "• 2 - <@U123>\n• 3 - <@U456>"
-            }
+              text: "• 2 - <@U123>\n• 3 - <@U456>",
+            },
           });
         });
       });
@@ -83,63 +88,69 @@ describe("responses", () => {
             storyName: "STORY",
             votes: {},
             id: "STORY_ID",
-            closed: true
+            closed: true,
           });
 
           expect(response).to.deep.include({
             type: "section",
             text: {
               type: "mrkdwn",
-              text: ":cry: No votes"
-            }
+              text: ":cry: No votes",
+            },
           });
         });
       });
     });
   });
 
-  function rendersABlankVoteTests(fn, story) {
+  function rendersABlankVoteTests(
+    fn: typeof start | typeof vote,
+    story: Partial<Story>
+  ) {
     it("includes the story name", () => {
-      const response = fn({ ...story });
+      const response = fn(storyFactory.build({ ...story }));
 
       expect(response).to.deep.include({
         type: "section",
-        text: { type: "mrkdwn", text: "*Voting* :point_right: STORY" }
+        text: { type: "mrkdwn", text: "*Voting* :point_right: STORY" },
       });
     });
 
     it("includes the voting options", () => {
-      const response = fn({ ...story });
+      const response = fn(storyFactory.build({ ...story }));
 
       expect(response[1].type).to.equal("actions");
       ["0", "1", "2", "3"].forEach((option, index) => {
+        // @ts-ignore
         expect(response[1].elements[index]).to.deep.include({
           type: "button",
           value: `${option}.STORY_ID`,
-          text: { type: "plain_text", text: option }
+          text: { type: "plain_text", text: option },
         });
       });
 
       expect(response[2].type).to.equal("actions");
       ["5", "8", "∞", "?"].forEach((option, index) => {
+        // @ts-ignore
         expect(response[2].elements[index]).to.deep.include({
           type: "button",
           value: `${option}.STORY_ID`,
-          text: { type: "plain_text", text: option }
+          text: { type: "plain_text", text: option },
         });
       });
     });
 
     it("includes the actions", () => {
-      const response = fn({ ...story });
+      const response = fn(storyFactory.build({ ...story }));
       expect(response[3].type).to.equal("actions");
+      // @ts-ignore
       expect(response[3].elements[0]).to.deep.include({
         type: "button",
         text: {
           type: "plain_text",
-          text: "Close vote"
+          text: "Close vote",
         },
-        value: "close.STORY_ID"
+        value: "close.STORY_ID",
       });
     });
   }

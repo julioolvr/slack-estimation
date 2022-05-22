@@ -6,13 +6,10 @@
   "scripts": {
     "start": "run-s build run",
     "run": "node build/index.js",
-    "build": "tsc",
-    "test": "run-s build test:run",
-    "test:unit": "run-s build test:run-unit",
-    "test:integration": "run-s build test:run-integration",
-    "test:run": "run-p test:run-unit test:run-integration",
-    "test:run-unit": "mocha 'lib/**/*.test.js'",
-    "test:run-integration": "mocha 'test/*.js'",
+    "build": "tsc --project tsconfig.build.json",
+    "test": "run-p test:unit test:integration",
+    "test:unit": "mocha",
+    "test:integration": "mocha 'test/*.js'",
     "lint": "eslint .",
     "dev": "run-p dev:*",
     "dev:build": "npm run build -- --watch",
@@ -39,15 +36,18 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@types/mocha": "^9.1.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "eslint": "^5.16.0",
     "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.1.1",
+    "fishery": "^2.2.2",
     "husky": "^2.4.1",
     "mocha": "^6.2.3",
     "nock": "^10.0.6",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "ts-node": "^10.8.0"
   }
 }
