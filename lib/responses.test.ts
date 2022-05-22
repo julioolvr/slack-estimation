@@ -38,7 +38,7 @@ describe("responses", () => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "Already voted: <@U123>, <@U456>",
+              text: "Already voted (2): <@U123>, <@U456>",
             },
           });
         });
