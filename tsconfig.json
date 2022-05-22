@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     // Enable strictest settings like strictNullChecks & noImplicitAny.
-    "strict": true
+    "strict": true,
+    "outDir": "build"
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

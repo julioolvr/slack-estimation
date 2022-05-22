@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "run-s build run",
-    "run": "node index.js",
+    "run": "node build/index.js",
     "build": "tsc",
     "test": "run-s build test:run",
     "test:unit": "run-s build test:run-unit",
@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "dev": "run-p dev:*",
     "dev:build": "npm run build -- --watch",
-    "dev:run": "nodemon index.js"
+    "dev:run": "nodemon build/index.js"
   },
   "husky": {
     "hooks": {
