@@ -122,7 +122,15 @@ export const voters = (votes: Votes): Array<SectionBlock> =>
           },
         },
       ]
-    : [];
+    : [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "No votes",
+          },
+        },
+      ];
 
 export const results = (
   votes: Votes,

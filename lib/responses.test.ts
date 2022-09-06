@@ -3,17 +3,9 @@ import { expect } from "chai";
 import { Story } from "./story";
 import { storyFactory } from "./test/factories";
 
-import { start, vote } from "./responses";
+import { vote } from "./responses";
 
 describe("responses", () => {
-  describe("start", () => {
-    rendersABlankVoteTests(start, {
-      storyName: "STORY",
-      votes: {},
-      id: "STORY_ID",
-    });
-  });
-
   describe("vote", () => {
     describe("for an open story", () => {
       describe("with no existing votes", () => {
@@ -103,10 +95,7 @@ describe("responses", () => {
     });
   });
 
-  function rendersABlankVoteTests(
-    fn: typeof start | typeof vote,
-    story: Partial<Story>
-  ) {
+  function rendersABlankVoteTests(fn: typeof vote, story: Partial<Story>) {
     it("includes the story name", () => {
       const response = fn(storyFactory.build({ ...story }));
 
@@ -140,11 +129,23 @@ describe("responses", () => {
       });
     });
 
+    it("includes a blank voters message", () => {
+      const response = fn(storyFactory.build({ ...story }));
+      expect(response[3].type).to.equal("section");
+      expect(response[3]).to.deep.equal({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "No votes",
+        },
+      });
+    });
+
     it("includes the actions", () => {
       const response = fn(storyFactory.build({ ...story }));
-      expect(response[3].type).to.equal("actions");
+      expect(response[4].type).to.equal("actions");
       // @ts-ignore
-      expect(response[3].elements[0]).to.deep.include({
+      expect(response[4].elements[0]).to.deep.include({
         type: "button",
         text: {
           type: "plain_text",

@@ -70,6 +70,13 @@ const snapshot = storyName => ({
       ]
     },
     {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: 'No votes'
+      }
+    },
+    {
       type: "actions",
       elements: [
         {

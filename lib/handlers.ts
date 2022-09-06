@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { respond, acknowledge } from "./slack";
 import { getStory, createStory, updateStory } from "./store";
 import { closeVote, countVote } from "./actions";
-import { start, vote } from "./responses";
+import { vote } from "./responses";
 
 export function handleStart(req: Request, res: Response) {
   acknowledge(res);
@@ -15,7 +15,7 @@ export function handleStart(req: Request, res: Response) {
 
   respond(responseUrl, {
     response_type: "in_channel",
-    blocks: start(story)
+    blocks: vote(story),
   });
 }
 
@@ -40,6 +40,6 @@ export function handleAction(req: Request, res: Response) {
 
   respond(payload.response_url, {
     replace_original: true,
-    blocks: vote(updatedStory)
+    blocks: vote(updatedStory),
   });
 }
